@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +55,7 @@ class _PublishPostState extends State<PublishPost> {
                   maxLength: 10,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: docNumber,
+                  keyboardType: TextInputType.number,
                   validator: (value) {
                     try {
                       double x = double.parse(value!);
@@ -160,49 +160,77 @@ class _PublishPostState extends State<PublishPost> {
                             textColor: Colors.white,
                           );
                         } else {
-                          final ref = FirebaseFirestore.instance
-                              .collection(widget.contributionArea)
-                              .doc(sId);
+                          // final ref = FirebaseFirestore.instance
+                          //     .collection(widget.contributionArea)
+                          //     .doc(sId);
+                          // final myEncodedJson = jsonEncode(json);
+                          // await ref.set({
+                          //   'doc': myEncodedJson,
+                          //   'like': [],
+                          //   'comment': []
+                          // });
+                          // final searchRef = FirebaseFirestore.instance
+                          //     .collection('search')
+                          //     .doc(widget.contributionArea);
+                          // final searchFile = await searchRef.get();
+                          // if (searchFile.exists) {
+                          //   List des = searchFile['des'];
+                          //   List id = searchFile['id'];
+                          //   List tle = searchFile['title'];
+                          //   des.add(shortDes.text.trim());
+                          //   id.add(sId);
+                          //   tle.add(titel.text.trim());
+                          //   await searchRef.set({
+                          //     "id": id,
+                          //     "title": tle,
+                          //     "des": des,
+                          //   });
+                          // } else {
+                          //   final searchRef = FirebaseFirestore.instance
+                          //       .collection('search')
+                          //       .doc(widget.contributionArea);
+                          //   await searchRef.set({
+                          //     "id": [sId],
+                          //     "title": [titel.text.trim()],
+                          //     "des": [shortDes.text.trim()],
+                          //   });
+                          // }
+                          DateTime now = DateTime.now();
+                          int randomNumber = now.year * 365 * 24 * 60 * 60 +
+                              now.month * 30 * 24 * 60 * 60 +
+                              now.day * 24 * 60 * 60 +
+                              now.hour * 60 * 60 +
+                              now.minute * 60 +
+                              now.second;
+
+                          final profileRef = FirebaseFirestore.instance
+                              .collection('user')
+                              .doc(FirebaseAuth.instance.currentUser!.email);
+                          final profileDoc = await profileRef.get();
+
+                          List pendingPost = profileDoc['pendingPost'];
+                          pendingPost.add('$randomNumber');
+                          await profileRef.update({"pendingPost": pendingPost});
+
                           final myEncodedJson = jsonEncode(json);
-                          await ref.set({
+                          final pendingRef = FirebaseFirestore.instance
+                              .collection('pending')
+                              .doc('$randomNumber');
+                          await pendingRef.set({
                             'doc': myEncodedJson,
                             'like': [],
-                            'comment': []
+                            'comment': [],
+                            'language': widget.contributionArea,
+                            'id': sId,
                           });
-                          final searchRef = FirebaseFirestore.instance
-                              .collection('search')
-                              .doc(widget.contributionArea);
-                          final searchFile = await searchRef.get();
-                          if (searchFile.exists) {
-                            List des = searchFile['des'];
-                            List id = searchFile['id'];
-                            List tle = searchFile['title'];
-                            des.add(shortDes.text.trim());
-                            id.add(sId);
-                            tle.add(titel.text.trim());
-                            await searchRef.set({
-                              "id": id,
-                              "title": tle,
-                              "des": des,
-                            });
-                          } else {
-                            final searchRef = FirebaseFirestore.instance
-                                .collection('search')
-                                .doc(widget.contributionArea);
-                            await searchRef.set({
-                              "id": [sId],
-                              "title": [titel.text.trim()],
-                              "des": [shortDes.text.trim()],
-                            });
-                          }
                         }
-                        final ref = FirebaseFirestore.instance
-                            .collection('user')
-                            .doc(FirebaseAuth.instance.currentUser!.email);
-                        final file = await ref.get();
-                        List post = file['post'];
-                        post.add("${widget.contributionArea}/$sId");
-                        await ref.update({"post": post});
+                        // final ref = FirebaseFirestore.instance
+                        //     .collection('user')
+                        //     .doc(FirebaseAuth.instance.currentUser!.email);
+                        // final file = await ref.get();
+                        // List post = file['post'];
+                        // post.add("${widget.contributionArea}/$sId");
+                        // await ref.update({"post": post});
 
                         Navigator.pop(context);
                         Navigator.pop(context);

@@ -49,6 +49,7 @@ class _LoginState extends State<Login> {
                     autocorrect: false,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: email,
+                    keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (!EmailValidator.validate(value!)) {
                         return "Please enter a valid email.";
@@ -70,6 +71,9 @@ class _LoginState extends State<Login> {
                     autocorrect: false,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: pass,
+                    obscureText: true,
+                    enableSuggestions: false,
+                    keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value!.length < 3) {
                         return "Password is too short";
@@ -248,8 +252,9 @@ class _LoginState extends State<Login> {
                           "profile": url,
                           "name": name.text.trim(),
                           "like": 0,
-                          'post': [],
-                          'pendingPost': []
+                          'post': [""],
+                          'pendingPost': [""],
+                          "chatID": allUserList.length
                         };
                         final firebaseref = FirebaseFirestore.instance
                             .collection('user')
